@@ -15,6 +15,8 @@ using namespace std;
 void tolower_string(string& x) {
     for (char& c : x) {
         c = tolower(c);
+
+        
     }
 }
 int ischaracter(string x) {
