@@ -1,0 +1,16 @@
+Requirements
+The project needs to be finalized by January 12th 23:59. An entry needs to be added to Moodle with a link to the Github repository.
+Access needs to be given to danielcdi (chisdanielioan@gmail.com) in order to access the repository.
+The repository needs to contain the following:
+Codebase
+Demo (video) going through the creation flow, running a flow and seeing analytics about the flows where you also explain what you are doing. Demo video must be of maximum 90 seconds.
+A testing matrix where you have at least 20 tests written that must be verified by the owner and confirmed that it works.
+In solving the homework, the following OOP concepts must be covered:
+Classes and objects
+Constructors and destructors
+Encapsulation
+Inheritance
+Polymorphism
+Abstractization
+Templates
+Exceptions
