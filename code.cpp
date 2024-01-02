@@ -14,9 +14,7 @@ using namespace std;
 
 void tolower_string(string& x) {
     for (char& c : x) {
-        c = tolower(c);
-
-        
+        c = tolower(c);     
     }
 }
 int ischaracter(string x) {
@@ -750,7 +748,7 @@ class Menu {
         cout<<"\n\n";
     }
 
-    // accesez un singrur flow si il judec
+    // accesez un singrur flow si creez componentele + le accesez pe fiecare
     void acces_a_flow(vector<int>& myVector) {
         space_between();
         flow_Vector.clear();
@@ -827,6 +825,17 @@ class Menu {
         }
     }
 
+// delete a specific flow
+    void delete_a_flow(int x) {
+        if (x <= all_flows.size() && x > -1) {
+            all_flows.erase(all_flows.begin() + x);
+            name_flows_vector.erase(name_flows_vector.begin() + x);
+        } else{
+            error_wrong_command();
+            cout<<"Cannot delete that flow!!\n\n";
+        }
+    }
+
 // aici accesez lista completa de de flow uri si de nume flow uri, si il aleg pe cel dorit.
     void menu_existing_flows() {
         space_between();
@@ -845,12 +854,14 @@ class Menu {
 
             // afisez ceva daca a apasat comanda gresita
             if (wrong_ansnwer == true) {
-                cout<< "\nTe rog apasa o valoare unui indice al flow ului dorit sau \"e\" daca vrei sa iesi!!\n";
+                cout<< "\nPlease press a value of an index of the desired flow, \"e\" if you want to exit or delete:INDEX!!\n";
             }
             // Se introduce optiunea
-            cout<<"Choose an option (only the index necessary or \"e\" to esc):";
+            cout<<"Choose an option (only the index necessary, \"e\" to esc or write \"delete:INDEX\" to delete a specific flow):";
             fflush(stdin);
             cin>>command;
+
+
             // verificare daca e numar si daca exista optiunea aceea
             if (all_of(command.begin(), command.end(), ::isdigit)) {
                 int option = stoi(command);
@@ -861,11 +872,31 @@ class Menu {
                 }
             } else if (command == "e"){
                 break;
-            }
-            else {
+            } else if(command.length() >7){
+                string substring = command.substr(0, 7);
+                string index_delete = command.substr(7);
+                int index_d = 10000;    
+                try
+                {
+                    index_d = stoi(index_delete);
+                }catch (const std::invalid_argument& e) {
+                    std::cerr << "Invalid argument: " << e.what() << std::endl;
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "Out of range: " << e.what() << std::endl;
+                }
+                    if(substring == "delete:" && index_d <=cnt_flow) {
+                        wrong_ansnwer = false;
+                        delete_a_flow(index_d - 1);
+
+                    } else {
+                        wrong_ansnwer = true;
+                        error_wrong_command();    
+                    }
+            } else {
                 wrong_ansnwer = true;
                 error_wrong_command();
             }
+            
         }
     }
 
