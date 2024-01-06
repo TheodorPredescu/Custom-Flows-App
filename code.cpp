@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <ctime>
 
 
 using namespace std;
@@ -83,7 +85,8 @@ string trim(const std::string& str) {
 
 class Interface {
     private:
-    bool skipped = false;
+    bool skipped = false, competed = false;
+    int cnt_errors = 0;
     public:
     virtual void set_output (ofstream& fout) {}
     virtual void get_display(string* x, string* y) {}
@@ -125,8 +128,17 @@ class Interface {
             }
         }
     }
+    bool is_completed() {
+        return competed;
+    }
     bool is_skipped() {
         return skipped;
+    }
+    int get_cnt_errors() {
+        return cnt_errors;
+    }
+    void increase_cnt_errors() {
+        cnt_errors++;
     }
 };
 
@@ -244,6 +256,7 @@ class Number_input : public Interface {
                 cout<<get_number_input()<<endl;
                 break;
             } else {
+                increase_cnt_errors();
                 std::cout << "Invalid input. Please enter a valid number." << std::endl;
             }
         }
@@ -297,13 +310,15 @@ class Calculus : public Interface {
                     } else {
                         error_wrong_command();
                         cout<<"Step skipped!\n";
+                        increase_cnt_errors();
                     }
                 } else {
-
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<< "Not an \"Number input\" or out of limit!!!\n";
                 }
             } else {
+                increase_cnt_errors();
                 error_wrong_command();
                 cout<<"Not a number\n";
             }
@@ -330,14 +345,17 @@ class Calculus : public Interface {
                     if (!flow[pozition2 - 1]->is_skipped()) {
                         break;
                     } else {
+                        increase_cnt_errors();
                         error_wrong_command();
                         cout<<"Step skipped!\n";
                     }
                 } else {
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<< "Not an \"Number input\" or out of limit!!!\n";
                 }
             } else {
+                increase_cnt_errors();
                 error_wrong_command();
                 cout<<"Not a number\n";
             }
@@ -377,6 +395,7 @@ class Calculus : public Interface {
                 }
                 default:
                 {
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<<"\n\nNot valid sign!!\n\n";
                     break;
@@ -389,10 +408,12 @@ class Calculus : public Interface {
             } else if (operation == "max") {
                 result = max(flow[pozition1 - 1]->get_number_input(), flow[pozition2 - 1]->get_number_input());
             } else {
+                increase_cnt_errors();
                 error_wrong_command();
                 cout<<"Not a valid command!!n";
             }
         } else {
+            increase_cnt_errors();
             error_wrong_command();
             cout<<"Not a valid command!!!\n";
         }
@@ -441,6 +462,7 @@ class Display : public Interface {
                     if (flow[command_step - 1]->is_skipped()) {
                         error_wrong_command();
                         cout<<"Text file skipped!\n\n";
+                        increase_cnt_errors();
                     } else {
                         // Afisam tot continutul din fisier
                         string description, file_path;
@@ -455,6 +477,7 @@ class Display : public Interface {
                             }
                             fin.close();
                         } else {
+                            increase_cnt_errors();
                             cout << "Unable to open file: " << file_path << endl;
                         }
                         break;
@@ -462,6 +485,7 @@ class Display : public Interface {
                     
                 } else if (flow[command_step - 1]->get_name() == "CSV file") {
                     if (flow[command_step - 1]->is_skipped()) {
+                        increase_cnt_errors();
                         error_wrong_command();
                         cout<<"CSV file skipped!\n\n";
                     } else {
@@ -492,17 +516,20 @@ class Display : public Interface {
 
                             fin.close();
                         } else {
+                            increase_cnt_errors();
                             std::cerr << "Unable to open file: " << file_path << std::endl;
                         }
                         break;
                     }
                 } else {
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<<"\n\tSomething went wrong; the step was not identified correctly!! (The display can only show txt or csv content. to see the content, please enter the step that contains information about the txt or csv file.)\n\n";
                     ok = true;
                 }
 
             } else {
+                increase_cnt_errors();
                 cout<<"NOT A VALID INPUT!!\n\n";
                 ok = true;
             }
@@ -562,6 +589,7 @@ class Text_file_input : public Interface {
                 getline(cin, file_name);
                 file_name = trim(file_name);
                 if (file_name.length() < 4 || file_name.substr(file_name.length() - 4) != ".txt") {
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<<"\tNot a .txt file!!\n";
                 } else {
@@ -578,6 +606,7 @@ class Text_file_input : public Interface {
                     }
                     catch(const std::runtime_error& e)
                     {
+                        increase_cnt_errors();
                         std::cerr << "\n\n\nError: " << e.what() << "\n\n";
                         path_to_file = "";
                         file_name = "";
@@ -640,6 +669,7 @@ class CSV_file_input : public Interface {
                 getline(cin, file_name);
                 file_name = trim(file_name);
                 if (file_name.length() < 4 || file_name.substr(file_name.length() - 4) != ".csv") {
+                    increase_cnt_errors();
                     error_wrong_command();
                     cout<<"\tNot a .csv file!!\n";
                 } else {
@@ -656,6 +686,7 @@ class CSV_file_input : public Interface {
                     }
                     catch(const std::runtime_error& e)
                     {
+                        increase_cnt_errors();
                         std::cerr << "\n\n\nError: " << e.what() << "\n\n";
                         path_to_file = "";
                         file_name = "";
@@ -695,6 +726,7 @@ class Output : public Interface {
         ofstream fout(new_file_name.c_str());
 
         if (!fout.is_open()) {
+            increase_cnt_errors();
             cout<<"\n\nSomething went wrong!\n";
             return;
         }
@@ -708,6 +740,7 @@ class Output : public Interface {
                 if (command == "e") {
                     break;
                 } else {
+                    increase_cnt_errors();
                     error_wrong_command();
                 }
             } else if (all_of(command.begin(), command.end(), ::isdigit)) {
@@ -715,9 +748,11 @@ class Output : public Interface {
                 if (step <= flow.size() && flow[step - 1]->is_skipped() == false) {
                     flow[step - 1]->set_output(fout);
                 } else {
+                    increase_cnt_errors();
                     error_wrong_command();
                 }
             }else {
+                increase_cnt_errors();
                 error_wrong_command();
             }
         }
@@ -731,13 +766,22 @@ class Menu {
     string command;
     vector<vector<shared_ptr<Interface>>> matrix;
     vector<shared_ptr<Interface>> flow_Vector;
-    vector<string> name_flows_vector;
+    vector<string> name_flows_vector; //I will add the timestamp here to
     vector<vector<int>>all_flows;
     vector<int> one_flow;
+    
+    // for analytics
+    // vector<float> analytics_1_flow; //1. nr flow as been started; 2. completed; 3. average errors
+    vector<vector<float>> analytics_1_flows; //all 
+    vector<int> analytics_2_flow_skipped;
+    vector<int> analytics_2_flow_errors;
+    vector<vector<int>> analytics_2_flows;
+
     bool loop_main_start = true;
     
     public:
 
+    // afisare lista componente din flow
     void show_a_flow_with_no_name(vector<int> flow) {
         int cnt = 0;
         cout<<"\n\t";
@@ -747,9 +791,22 @@ class Menu {
         }
         cout<<"\n\n";
     }
+    void show_analytics(vector<int> flow) {
+        auto result = find(all_flows.begin(), all_flows.end(), flow);
+        int poz = distance(all_flows.begin(), result);
+        
+        cout<<"-Started: "<< analytics_1_flows[poz][0]<<endl;
+        cout<<"-Completed: "<<analytics_1_flows[poz][1]<<endl;
+        cout<<"-No errors: "<<analytics_1_flows[poz][2]<<endl<<endl;
+    }
 
     // accesez un singrur flow si creez componentele + le accesez pe fiecare
-    void acces_a_flow(vector<int>& myVector) {
+    void acces_a_flow(vector<int>& myVector, int poz) {
+        // the poz does not need -1, its direcly the pozition
+        // retin de cate ori am inceput flow ul respectiv
+        cout<<"**";
+        analytics_1_flows[poz-1][0] ++;
+        cout<<"**";
         space_between();
         flow_Vector.clear();
         for (const auto& element : myVector) {
@@ -760,6 +817,10 @@ class Menu {
                 {
                     shared_ptr<Interface> new_title = make_shared<Title>();
                     new_title->execution();
+                    if (new_title->is_skipped()) {
+                        // analytics_1_flows[poz-1][distance(myVector.begin(), find(myVector.begin(), myVector.end(), element)) - 1]
+                    }
+                    analytics_1_flows[poz-1][2] += new_title->get_cnt_errors();
                     flow_Vector.push_back(move(new_title));
                     break;
                 }
@@ -771,6 +832,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_text_input = make_shared<Text_input>();
                 new_text_input->execution();
+                analytics_1_flows[poz-1][2] += new_text_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_text_input));
                 break;
             }
@@ -778,6 +840,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_number_input = make_shared<Number_input>();
                 new_number_input->execution();
+                analytics_1_flows[poz-1][2] += new_number_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_number_input));
                 break;
             }
@@ -786,6 +849,7 @@ class Menu {
                 shared_ptr<Interface> new_calculus = make_shared<Calculus>();
                 new_calculus->get_the_flow(flow_Vector);
                 new_calculus->execution();
+                analytics_1_flows[poz-1][2] += new_calculus->get_cnt_errors();
                 flow_Vector.push_back(move(new_calculus));
                 break;
             }
@@ -794,6 +858,7 @@ class Menu {
                 shared_ptr<Interface> new_display = make_shared<Display>();
                 new_display->get_the_flow(flow_Vector);
                 new_display->execution();
+                analytics_1_flows[poz-1][2] += new_display->get_cnt_errors();
                 flow_Vector.push_back(move(new_display));
                 break;
             }
@@ -801,6 +866,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_text_file_input = make_shared<Text_file_input>();
                 new_text_file_input->execution();
+                analytics_1_flows[poz-1][2] += new_text_file_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_text_file_input));
                 break;
             }
@@ -808,6 +874,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_CSV_file_input = make_shared<CSV_file_input>();
                 new_CSV_file_input->execution();
+                analytics_1_flows[poz-1][2] += new_CSV_file_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_CSV_file_input));
                 break;
             }
@@ -816,6 +883,7 @@ class Menu {
                 shared_ptr<Interface> new_output = make_shared<Output>();
                 new_output->get_the_flow(flow_Vector);
                 new_output->execution();
+                analytics_1_flows[poz-1][2] += new_output->get_cnt_errors();
                 flow_Vector.push_back(move(new_output));
                 break;
             }
@@ -823,13 +891,16 @@ class Menu {
                 break;
             }
         }
+        // de cate ori am finalizat flow ul respectiv
+            analytics_1_flows[poz-1][1] ++;
     }
 
 // delete a specific flow
     void delete_a_flow(int x) {
         if (x <= all_flows.size() && x > -1) {
-            all_flows.erase(all_flows.begin() + x);
-            name_flows_vector.erase(name_flows_vector.begin() + x);
+            all_flows.erase(all_flows.begin() + x - 1);
+            name_flows_vector.erase(name_flows_vector.begin() + (x - 1) * 2 + 1);
+            name_flows_vector.erase(name_flows_vector.begin() + (x - 1) * 2);
         } else{
             error_wrong_command();
             cout<<"Cannot delete that flow!!\n\n";
@@ -846,9 +917,10 @@ class Menu {
                 cnt_flow ++;
                 cnt_pozition = 0;
                 // afisez numele flow ului
-                cout<<cnt_flow << ". "<< name_flows_vector[cnt_flow - 1]<< "\n\t";
+                cout<<cnt_flow << ". "<< name_flows_vector[(cnt_flow - 1) * 2]<<"\t\t"<< name_flows_vector[(cnt_flow - 1)* 2 + 1]<<  "\n\t";
                 // afisez flow ul 
                 show_a_flow_with_no_name(flow);
+                show_analytics(flow);
                 cout<<endl<<endl;
             }
 
@@ -866,7 +938,7 @@ class Menu {
             if (all_of(command.begin(), command.end(), ::isdigit)) {
                 int option = stoi(command);
                 if(option <= cnt_flow) {
-                    acces_a_flow(all_flows[option - 1]);
+                    acces_a_flow(all_flows[option - 1],option);
                 } else {
                     cout<<"\n\nOut of range!!\n\n";
                 }
@@ -886,7 +958,7 @@ class Menu {
                 }
                     if(substring == "delete:" && index_d <=cnt_flow) {
                         wrong_ansnwer = false;
-                        delete_a_flow(index_d - 1);
+                        delete_a_flow(index_d);
 
                     } else {
                         wrong_ansnwer = true;
@@ -900,9 +972,35 @@ class Menu {
         }
     }
 
-    // create the new - comanda n de pe prima pagina
+    string get_time() {
+        string var = "";
+        auto currentTime = chrono::system_clock::to_time_t(chrono::system_clock::now());
+        tm* localTime = localtime(&currentTime);
+
+        int hour = localTime->tm_hour;
+        var = to_string(hour);
+        
+        int minute = localTime->tm_min;
+        var = var + ":" + to_string(minute);
+
+        int seconds = localTime->tm_sec;
+        var = var + ":" + to_string(seconds);
+        
+        int month = localTime->tm_mon + 1;
+        var = var + " " + to_string(month);
+
+        int day = localTime->tm_mday;
+        var = var + "/" + to_string(day);
+        
+        int year = localTime->tm_year + 1900;
+        var = var + "/" + to_string(year);
+        return var;
+    }
+
+    // create a new flow - comanda n de pe prima pagina
     void new_flow() {
         string name_flow;
+        string time;
         int cnt = 0;
 
         while(true) {
@@ -927,6 +1025,9 @@ class Menu {
             cin>> command;
             
             if( command == "e" && !one_flow.empty()) {
+                // Creez un vector gol cu 3 casute pentru a le putea accesa mai tarziu si a retine nr de accesari, nr de finalizari si avrg errors
+                vector<float> analytics_1_flow (3, 0.0);
+                analytics_1_flows.push_back(analytics_1_flow);
                 all_flows.push_back(move(one_flow));
                 one_flow.clear();
 
@@ -934,8 +1035,10 @@ class Menu {
                 fflush(stdin);
                 getline(cin, name_flow);
                 name_flow = trim(name_flow);
-                cout<<name_flow;
+                // cout<<name_flow;
                 name_flows_vector.push_back(name_flow);
+                time = get_time();
+                name_flows_vector.push_back(time);
                 break;
             } else if (command == "e") {
                 break;
