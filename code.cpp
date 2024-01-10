@@ -804,9 +804,7 @@ class Menu {
     void acces_a_flow(vector<int>& myVector, int poz) {
         // the poz does not need -1, its direcly the pozition
         // retin de cate ori am inceput flow ul respectiv
-        cout<<"**";
         analytics_1_flows[poz-1][0] ++;
-        cout<<"**";
         space_between();
         flow_Vector.clear();
         for (const auto& element : myVector) {
