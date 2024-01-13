@@ -734,6 +734,7 @@ class Output : public Interface {
             cout<<"Enter the previous steps you want to add or e to esc (one by one; they will be in the same order as you entered them): ";
             fflush(stdin);
             getline(cin, command);
+            fflush(stdin);
             command = trim(command);
             if (ischaracter(command)) {
                 tolower_string(command);

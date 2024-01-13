@@ -1,0 +1,6 @@
+			title 1
+(Desciption: descriere).
+awefaergabfyekrfuygawenfao;wefhiauw;hfa;wengf;iuawegb
+Result: 1.12644
+Description: descriere text file
+File name: text.txt

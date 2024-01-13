@@ -1,16 +1,23 @@
-Requirements
-The project needs to be finalized by January 12th 23:59. An entry needs to be added to Moodle with a link to the Github repository.
-Access needs to be given to danielcdi (chisdanielioan@gmail.com) in order to access the repository.
-The repository needs to contain the following:
-Codebase
-Demo (video) going through the creation flow, running a flow and seeing analytics about the flows where you also explain what you are doing. Demo video must be of maximum 90 seconds.
-A testing matrix where you have at least 20 tests written that must be verified by the owner and confirmed that it works.
-In solving the homework, the following OOP concepts must be covered:
-Classes and objects
-Constructors and destructors
-Encapsulation
-Inheritance
-Polymorphism
-Abstractization
-Templates
-Exceptions
+Vision
+Our vision is to create an app that allows users to create custom flows for processes they use in their work.
+Background
+As companies go through the digitalization process, they need to move their process to apps that can help them automate and optimize their work. 
+
+It is important for stakeholders to create flows needed for their own processes and be able to create new ones easily. 
+
+At the same time it is important to see analytics about their processes to see how they can adapt them.
+
+Companies like UiPath, IBM, Oracle have invested in tools to create processes.
+Goal
+Create a process builder that can help users make their own flows.
+Types of steps
+TITLE step: title (string), subtitle (string)
+TEXT step: title (string), copy (string)
+TEXT INPUT step: description (string), text input (string)
+NUMBER INPUT step: description (string), number input (float)
+CALCULUS step: steps (integer), operation (string)
+DISPLAY steps: step (integer)
+TEXT FILE input step: description, file_name 
+CSV FILE input step: description, file_name
+OUTPUT step: step (integer), name of file (string), title (text), description (text)
+END step
