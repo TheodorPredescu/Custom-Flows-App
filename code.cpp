@@ -764,6 +764,9 @@ class Menu {
 
     // matricea de flow uri si vectorul de flow uri ce ulterior va fii pus in matrice sunt de tip int, iar matricea de informatii este de tip Interface
     string command;
+    // retin cate erori am pe o rulare, pentru a putea face media la final
+    int no_errors;
+    
     vector<vector<shared_ptr<Interface>>> matrix;
     vector<shared_ptr<Interface>> flow_Vector;
     vector<string> name_flows_vector; //I will add the timestamp here to
@@ -809,6 +812,7 @@ class Menu {
         flow_Vector.clear();
         for (const auto& element : myVector) {
             show_a_flow_with_no_name(myVector);
+            no_errors = 0;
             switch (element)
             {
             case 1:
@@ -818,7 +822,7 @@ class Menu {
                     if (new_title->is_skipped()) {
                         // analytics_1_flows[poz-1][distance(myVector.begin(), find(myVector.begin(), myVector.end(), element)) - 1]
                     }
-                    analytics_1_flows[poz-1][2] += new_title->get_cnt_errors();
+                    no_errors += new_title->get_cnt_errors();
                     flow_Vector.push_back(move(new_title));
                     break;
                 }
@@ -830,7 +834,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_text_input = make_shared<Text_input>();
                 new_text_input->execution();
-                analytics_1_flows[poz-1][2] += new_text_input->get_cnt_errors();
+                no_errors += new_text_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_text_input));
                 break;
             }
@@ -838,7 +842,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_number_input = make_shared<Number_input>();
                 new_number_input->execution();
-                analytics_1_flows[poz-1][2] += new_number_input->get_cnt_errors();
+                no_errors += new_number_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_number_input));
                 break;
             }
@@ -847,7 +851,7 @@ class Menu {
                 shared_ptr<Interface> new_calculus = make_shared<Calculus>();
                 new_calculus->get_the_flow(flow_Vector);
                 new_calculus->execution();
-                analytics_1_flows[poz-1][2] += new_calculus->get_cnt_errors();
+                no_errors += new_calculus->get_cnt_errors();
                 flow_Vector.push_back(move(new_calculus));
                 break;
             }
@@ -856,7 +860,7 @@ class Menu {
                 shared_ptr<Interface> new_display = make_shared<Display>();
                 new_display->get_the_flow(flow_Vector);
                 new_display->execution();
-                analytics_1_flows[poz-1][2] += new_display->get_cnt_errors();
+                no_errors += new_display->get_cnt_errors();
                 flow_Vector.push_back(move(new_display));
                 break;
             }
@@ -864,7 +868,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_text_file_input = make_shared<Text_file_input>();
                 new_text_file_input->execution();
-                analytics_1_flows[poz-1][2] += new_text_file_input->get_cnt_errors();
+                no_errors += new_text_file_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_text_file_input));
                 break;
             }
@@ -872,7 +876,7 @@ class Menu {
             {
                 shared_ptr<Interface> new_CSV_file_input = make_shared<CSV_file_input>();
                 new_CSV_file_input->execution();
-                analytics_1_flows[poz-1][2] += new_CSV_file_input->get_cnt_errors();
+                no_errors += new_CSV_file_input->get_cnt_errors();
                 flow_Vector.push_back(move(new_CSV_file_input));
                 break;
             }
@@ -881,13 +885,23 @@ class Menu {
                 shared_ptr<Interface> new_output = make_shared<Output>();
                 new_output->get_the_flow(flow_Vector);
                 new_output->execution();
-                analytics_1_flows[poz-1][2] += new_output->get_cnt_errors();
+                no_errors += new_output->get_cnt_errors();
                 flow_Vector.push_back(move(new_output));
                 break;
             }
             default:
                 break;
             }
+        }
+        // Calculez media greselilor: daca e facuta deja si as vrea sa o recalculez, exista formula: (medie*nr_elemente_anterioare + element_nou + element_nou + ...) / nr_elemente_nou
+        if (analytics_1_flows[poz-1][0] != 1) {
+            analytics_1_flows[poz-1][2]  *= analytics_1_flows[poz-1][0] - 1;
+            analytics_1_flows[poz-1][2] += no_errors;
+            analytics_1_flows[poz-1][2] /= analytics_1_flows[poz-1][0];
+        }
+        else {
+            // daca sunt la prima rulare
+            analytics_1_flows[poz-1][2] = no_errors;
         }
         // de cate ori am finalizat flow ul respectiv
             analytics_1_flows[poz-1][1] ++;
